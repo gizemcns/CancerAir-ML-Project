@@ -1,1 +1,30 @@
-"venv/" 
+"venv/" # Data files
+data/raw/*.csv
+data/processed/*.csv
+data/**/*.parquet
+*.pkl
+*.joblib
+
+# Model files
+models/*.pkl
+models/*.joblib
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
