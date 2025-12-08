@@ -108,12 +108,13 @@ lung-cancer-prediction/
 **Kaynak:** [Kaggle - Cancer Patients and Air Pollution Dataset](https://www.kaggle.com/datasets/thedevastator/cancer-patients-and-air-pollution-a-new-link)
 
 **Özellikler:**
-- Boyut: 10k+ satır, 10+ özellik
+- Boyut: 1000 satır × 24 sütun
 - Format: Tabular (.csv)
-- Hedef Değişken: Akciğer kanseri varlığı (binary classification)
+- Hedef Değişken: Akciğer kanseri varlığı (level)
 - Özellikler: Hava kirliliği seviyeleri, yaş, cinsiyet, sigara kullanımı, genetik risk faktörleri vb.
-
----
+- Eksik Değer Yok (tamamen temiz)
+- Tekrar Eden Satır Yok (0 duplicate)
+- Veri TipiT amamı sayısal (int64). Kategorik değişkenler 1-9 arası skorlarla kodlanmış
 
 ## 🛠️ Teknolojiler
 
@@ -137,8 +138,7 @@ pip install -r requirements.txt
 
 ### Veri Hazırlama
 
-1. Kaggle'dan veri setini indirin
-2. `data/raw/` klasörüne yerleştirin
+
 
 ### Model Eğitimi
 ```bash
@@ -164,12 +164,7 @@ streamlit run src/app.py
 
 ## 📈 Sonuçlar (Güncellenecek)
 
-| Metrik | Baseline | Final Model |
-|--------|----------|-------------|
-| Accuracy | - | - |
-| Precision | - | - |
-| Recall | - | - |
-| F1-Score | - | - |
+
 
 ---
 
@@ -190,7 +185,7 @@ streamlit run src/app.py
 
 **Geliştirici:** [Gizem Can Bayındır]  
 **Email:** [gizemcans2@gmail.com]  
-**LinkedIn:** [linkedin.com/in/profil]  
+**LinkedIn:** [www.linkedin.com/in/gizemcanbayındırr]  
 **GitHub:** [@gizemcns](https://github.com/gizemcns)
 
 ---
