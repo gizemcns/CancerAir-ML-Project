@@ -43,7 +43,7 @@ age = st.sidebar.slider("Age", 18, 90, 45)
 # Environmental factors
 st.sidebar.subheader("Environmental Factors")
 air_pollution = st.sidebar.slider("Air Pollution Level", 1, 10, 5, 
-                                  help="1=Low, 10=High")
+                                help="1=Low, 10=High")
 dust_allergy = st.sidebar.slider("Dust Allergy", 1, 10, 5)
 occupational_hazards = st.sidebar.slider("Occupational Hazards", 1, 10, 4)
 
@@ -54,7 +54,7 @@ smoking = st.sidebar.slider("Smoking Level", 1, 10, 5,
 passive_smoker = st.sidebar.slider("Passive Smoker Exposure", 1, 10, 4)
 alcohol_use = st.sidebar.slider("Alcohol Use", 1, 10, 3)
 balanced_diet = st.sidebar.slider("Balanced Diet", 1, 10, 5,
-                                 help="1=Poor, 10=Excellent")
+                                help="1=Poor, 10=Excellent")
 obesity = st.sidebar.slider("Obesity Level", 1, 10, 4)
 
 # Health factors
