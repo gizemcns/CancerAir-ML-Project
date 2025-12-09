@@ -6,7 +6,7 @@ import os
 # ------------------- MODEL YÜKLEME -------------------
 @st.cache_resource
 def load_model():
-    model_path = "models/final_xgboost_model.joblib"
+    model_path = "models/final_model.pkl"
     if not os.path.exists(model_path):
         st.error("Model dosyası bulunamadı! Lütfen models/ klasörüne final_xgboost_model.joblib koyun.")
         st.stop()
