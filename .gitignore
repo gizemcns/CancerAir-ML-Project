@@ -1,30 +1,158 @@
-"venv/" # Data files
-data/raw/*.csv
-data/processed/*.csv
-data/**/*.parquet
-*.pkl
-*.joblib
-
-# Model files
-models/*.pkl
-models/*.joblib
-
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-*/.ipynb_checkpoints/*
-
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# Environments
+.env
+.venv
 env/
 venv/
+ENV/
+env.bak/
+venv.bak/
 
-# IDE
+# IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+.DS_Store
 
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Machine Learning
+models/*.pkl
+models/*.h5
+models/*.pt
+models/*.pth
+*.ckpt
+
+# Data files (don't commit large datasets)
+data/raw/*.csv
+data/processed/*.csv
+*.parquet
+*.feather
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+
+# Model artifacts (keep structure, ignore content)
+!models/.gitkeep
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Streamlit
+.streamlit/
+
+# FastAPI
+__pycache__/
+*.pyc
+
+# OS specific
+Thumbs.db
+.DS_Store
+
+# Saved models (large files)
+*.pkl
+*.h5
+*.joblib
+
+# Results and outputs
+results/
+outputs/
+figures/
+*.png
+*.jpg
+*.pdf
+
+# Except important documentation images
+!docs/*.png
+!docs/*.jpg
+
+# Notebooks outputs
+*_files/
+
+# Python virtual environments
+venv/
+env/
+.Python
+
+# Backup files
+*.bak
+*.backup
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3

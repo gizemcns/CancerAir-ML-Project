@@ -1,12 +1,13 @@
 "" 
-# 🫁 Lung Cancer Risk Prediction System
-## Hava Kirliliği ve Yaşam Tarzı Faktörleri ile Akciğer Kanseri Risk Tahmini
+# Cancer Risk Prediction - End-to-End ML Project
+## Kanser Riski Tahmini - Uçtan Uca ML Projesi
 
 ---
 
 ## 📌 Proje Hakkında
 
-Bu proje, **Zero2End Machine Learning Bootcamp** kapsamında geliştirilmiş uçtan uca bir makine öğrenmesi uygulamasıdır. 
+Bu proje, **Zero2End Machine Learning Bootcamp** kapsamında geliştirilmiş uçtan uca bir makine öğrenmesi uygulamasıdır.  Hasta verilerine dayalı olarak kanser risk seviyesini (Low, Medium, High) tahmin eden uçtan uca makine öğrenmesi projesidir.
+
 
 **Amaç:** Hava kirliliği, yaşam tarzı ve demografik faktörleri kullanarak bireylerdeki akciğer kanseri riskini tahmin eden bir ML modeli geliştirmek ve deploy etmek.
 
@@ -23,21 +24,21 @@ Bu proje, **Zero2End Machine Learning Bootcamp** kapsamında geliştirilmiş uç
   - [x] Klasör yapısı (data/, notebooks/, src/, models/)
   - [x] requirements.txt
 
-- [ ] **Exploratory Data Analysis (EDA)**
-  - [ ] Veri yükleme ve ilk inceleme
-  - [ ] Missing value analizi
-  - [ ] Değişken dağılımları ve korelasyonlar
-  - [ ] EDA bulguları dokümantasyonu
+- [x ] **Exploratory Data Analysis (EDA)**
+  - [ x] Veri yükleme ve ilk inceleme
+  - [ x] Missing value analizi
+  - [x ] Değişken dağılımları ve korelasyonlar
+  - [x ] EDA bulguları dokümantasyonu
 
-- [ ] **Baseline Model**
-  - [ ] Basit preprocessing pipeline
-  - [ ] İlk model eğitimi (Logistic Regression/Decision Tree)
-  - [ ] Baseline metrikler (Accuracy, F1-Score)
+- [x ] **Baseline Model**
+  - [ x] Basit preprocessing pipeline
+  - [ x] İlk model eğitimi (Logistic Regression/Decision Tree)
+  - [x ] Baseline metrikler (Accuracy, F1-Score)
 
-- [ ] **Feature Engineering**
-  - [ ] Yeni feature türetme
-  - [ ] Encoding ve scaling
-  - [ ] Feature'ların model performansına etkisi
+- [x ] **Feature Engineering**
+  -[x ] Yeni feature türetme
+  - [x ] Encoding ve scaling
+  - [x ] Feature'ların model performansına etkisi
 
 - [ ] **Model Optimization**
   - [ ] Çoklu model karşılaştırması (RF, XGBoost, LightGBM)
@@ -95,6 +96,7 @@ lung-cancer-prediction/
 │   ├── config.py
 │   ├── inference.py
 │   └── app.py
+    └── streamlit_app.py
 ├── models/
 │   └── final_model.pkl
 ├── docs/
@@ -133,7 +135,7 @@ lung-cancer-prediction/
 ```bash
 git clone https://github.com/kullanici-adin/lung-cancer-prediction.git
 cd lung-cancer-prediction
-pip install -r requirements.txt
+pip install -r requirements1.txt
 ```
 
 ### Veri Hazırlama
@@ -196,4 +198,4 @@ Bu proje eğitim amaçlıdır ve Zero2End ML Bootcamp final projesi olarak geli�
 
 ---
 
-**Son Güncelleme:** 7 Aralık 2025
+**Son Güncelleme:** 9 Aralık 2025

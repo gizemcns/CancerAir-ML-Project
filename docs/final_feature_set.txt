@@ -1,0 +1,25 @@
+FINAL FEATURE SET (10 features)
+================================================================================
+
+ 1. Symptom_Severity                    (importance: 0.165110)
+ 2. Overall_Risk_Score                  (importance: 0.083848)
+ 3. Obesity_ChronicLung                 (importance: 0.071531)
+ 4. Passive Smoker                      (importance: 0.063785)
+ 5. Coughing of Blood                   (importance: 0.059823)
+ 6. Obesity                             (importance: 0.052915)
+ 7. Smoking_Pollution                   (importance: 0.040482)
+ 8. PassiveSmoker_Pollution             (importance: 0.037619)
+ 9. Critical_Symptom_Count              (importance: 0.035828)
+10. Wheezing                            (importance: 0.032950)
+
+
+BUSINESS CRITICAL FEATURES CHECK:
+================================================================================
+Smoking                            : ⚠️ MISSING
+Age                                : ⚠️ MISSING
+Genetic Risk                       : ⚠️ MISSING
+Air Pollution                      : ⚠️ MISSING
+Chest Pain                         : ⚠️ MISSING
+Coughing of Blood                  : ✅ INCLUDED
+Shortness of Breath                : ⚠️ MISSING
+chronic Lung Disease               : ⚠️ MISSING

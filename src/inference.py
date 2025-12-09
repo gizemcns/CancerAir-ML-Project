@@ -1,154 +1,337 @@
+"""
+Inference Script - Cancer Risk Prediction
+==========================================
+Inference Script (Çıkarım Betiği), bir makine öğrenimi modelinin eğitim aşaması tamamlandıktan sonra, 
+bu modeli yeni, görülmemiş veriler üzerinde  çalıştırarak tahminler yapmasını sağlayan özel bir yazılım dosyasıdır.
+Eğitilmiş modelden tahmin alma ve preprocessing bilgileri içermektedir.
+"""
 
-"""
-Inference module for Lung Cancer Risk Prediction
-"""
-import joblib
 import pandas as pd
 import numpy as np
-from config import MODEL_PATH, SCALER_PATH, FEATURE_NAMES_PATH
+import pickle
+from pathlib import Path
+import warnings
+warnings.filterwarnings('ignore')
 
-class LungCancerPredictor:
-    def __init__(self):
-        """Initialize predictor with saved model and scaler"""
+# Import config
+try:
+    from config import *
+except:
+    # Fallback if config not available
+    FINAL_MODEL_PATH = 'models/final_model.pkl'
+    FINAL_SCALER_PATH = 'models/final_scaler.pkl'
+    CRITICAL_SYMPTOM_THRESHOLD = 6
+
+class CancerRiskPredictor:
+    """
+    Cancer Risk Level Predictor
+    
+    Loads trained model and provides prediction interface
+    """
+    
+    def __init__(self, model_path=None, scaler_path=None):
+        """
+        Initialize predictor
+        
+        Args:
+            model_path: Path to trained model pickle file
+            scaler_path: Path to trained scaler pickle file
+        """
+        self.model_path = model_path or FINAL_MODEL_PATH
+        self.scaler_path = scaler_path or FINAL_SCALER_PATH
+        
         self.model = None
         self.scaler = None
         self.feature_names = None
+        
         self.load_model()
     
     def load_model(self):
-        """Load trained model, scaler and feature names"""
+        """Load trained model and scaler"""
         try:
-            self.model = joblib.load(MODEL_PATH)
-            self.scaler = joblib.load(SCALER_PATH)
-            self.feature_names = joblib.load(FEATURE_NAMES_PATH)
-            print("✅ Model loaded successfully!")
-        except Exception as e:
-            print(f"❌ Error loading model: {e}")
-            raise
+            with open(self.model_path, 'rb') as f:
+                self.model = pickle.load(f)
+            print(f"✅ Model loaded from {self.model_path}")
+            
+            with open(self.scaler_path, 'rb') as f:
+                self.scaler = pickle.load(f)
+            print(f"✅ Scaler loaded from {self.scaler_path}")
+            
+            # Get feature names from model if available
+            if hasattr(self.model, 'feature_names_in_'):
+                self.feature_names = self.model.feature_names_in_
+            
+        except FileNotFoundError as e:
+            print(f"❌ Error: Model files not found. Please train the model first.")
+            raise e
     
-    def prepare_features(self, input_data):
+    def engineer_features(self, df):
         """
-        Prepare input data with feature engineering
+        Apply feature engineering to input data
         
         Args:
-            input_data (dict): Raw input features
-        
+            df: Input DataFrame with raw features
+            
         Returns:
-            pd.DataFrame: Prepared features
+            DataFrame with engineered features
         """
-        # Create DataFrame
-        df = pd.DataFrame([input_data])
+        df_fe = df.copy()
         
-        # Feature Engineering (same as training)
-        df['smoke_alcohol_risk'] = df['Smoking'] * df['Alcohol use']
-        df['genetic_total_risk'] = df['Genetic Risk'] * df['chronic Lung Disease']
-        df['total_risk_score'] = (
-            df['Smoking'] + df['Alcohol use'] + 
-            df['Air Pollution'] + df['Genetic Risk']
+        # Age Groups
+        df_fe['Age_Group'] = pd.cut(
+            df_fe['Age'], 
+            bins=[0, 25, 40, 55, 100], 
+            labels=[0, 1, 2, 3]).astype(int)
+
+        # Risk Scores
+        df_fe['Environmental_Risk'] = (
+            df_fe['Air Pollution'] + 
+            df_fe['Dust Allergy'] + 
+            df_fe['OccuPational Hazards']
+        ) / 3
+        
+        df_fe['Lifestyle_Risk'] = (
+            df_fe['Smoking'] + 
+            df_fe['Alcohol use'] + 
+            df_fe['Obesity'] +
+            (10 - df_fe['Balanced Diet'])
         ) / 4
         
-        # Encode categorical if exists (pd.get_dummies)
-        df_encoded = pd.get_dummies(df, drop_first=True)
+        df_fe['Genetic_Health_Risk'] = (
+            df_fe['Genetic Risk'] + 
+            df_fe['chronic Lung Disease']
+        ) / 2
         
-        # Align with training features
-        for col in self.feature_names:
-            if col not in df_encoded.columns:
-                df_encoded[col] = 0
+        # Symptom scores
+        symptom_cols = ['Chest Pain', 'Coughing of Blood', 'Fatigue', 'Weight Loss',
+                        'Shortness of Breath', 'Wheezing', 'Swallowing Difficulty']
+        df_fe['Symptom_Severity'] = df_fe[symptom_cols].mean(axis=1)
         
-        df_encoded = df_encoded[self.feature_names]
+        df_fe['Respiratory_Score'] = (
+            df_fe['Shortness of Breath'] + 
+            df_fe['Wheezing'] + 
+            df_fe['Dry Cough'] +
+            df_fe['chronic Lung Disease']
+        ) / 4
         
-        return df_encoded
+        # Critical symptoms
+        df_fe['Critical_Symptom_Count'] = (
+            (df_fe['Chest Pain'] >= CRITICAL_SYMPTOM_THRESHOLD).astype(int) +
+            (df_fe['Coughing of Blood'] >= CRITICAL_SYMPTOM_THRESHOLD).astype(int) +
+            (df_fe['Weight Loss'] >= CRITICAL_SYMPTOM_THRESHOLD).astype(int) +
+            (df_fe['Shortness of Breath'] >= CRITICAL_SYMPTOM_THRESHOLD).astype(int)
+        )
+        
+        # Overall risk
+        df_fe['Overall_Risk_Score'] = (
+            df_fe['Environmental_Risk'] * 0.25 +
+            df_fe['Lifestyle_Risk'] * 0.30 +
+            df_fe['Genetic_Health_Risk'] * 0.20 +
+            df_fe['Symptom_Severity'] * 0.25
+        )
+        
+        # Interactions
+        df_fe['Smoking_Age_Interaction'] = df_fe['Smoking'] * df_fe['Age']
+        df_fe['Genetic_Age_Interaction'] = df_fe['Genetic Risk'] * df_fe['Age']
+        df_fe['Smoking_Pollution'] = df_fe['Smoking'] * df_fe['Air Pollution']
+        df_fe['Obesity_ChronicLung'] = df_fe['Obesity'] * df_fe['chronic Lung Disease']
+        df_fe['PassiveSmoker_Pollution'] = df_fe['Passive Smoker'] * df_fe['Air Pollution']
+        
+        # Polynomial features
+        for feat in ['Smoking', 'Air Pollution', 'Genetic Risk']:
+            df_fe[f'{feat}_squared'] = df_fe[feat] ** 2
+        
+        # Binning
+        df_fe['Smoking_Level'] = pd.cut(df_fe['Smoking'], 
+        bins=[0, 2, 5, 10], 
+        labels=[0, 1, 2]).astype(int)
+        
+        df_fe['Pollution_Level'] = pd.cut(df_fe['Air Pollution'], 
+        bins=[0, 3, 6, 10], 
+        labels=[0, 1, 2]).astype(int)
+
+        return df_fe
     
-    def predict(self, input_data):
+    def preprocess(self, data):
+        """
+        Preprocess input data
+        
+        Args:
+            data: Dict or DataFrame with patient data
+            
+        Returns:
+            Preprocessed numpy array ready for prediction
+        """
+        # Convert dict to DataFrame if needed
+        if isinstance(data, dict):
+            df = pd.DataFrame([data])
+        else:
+            df = data.copy()
+        
+        # Engineer features
+        df_fe = self.engineer_features(df)
+        
+        # Select final features
+        final_features = [
+            'Smoking', 'Genetic Risk', 'Air Pollution', 'Alcohol use',
+            'chronic Lung Disease', 'Age', 'Obesity', 'Chest Pain',
+            'Coughing of Blood', 'Fatigue', 'Weight Loss', 'Shortness of Breath',
+            'Wheezing', 'Passive Smoker', 'OccuPational Hazards',
+            'Overall_Risk_Score', 'Lifestyle_Risk', 'Environmental_Risk',
+            'Symptom_Severity', 'Respiratory_Score', 'Genetic_Health_Risk',
+            'Smoking_Age_Interaction', 'Genetic_Age_Interaction',
+            'Smoking_squared', 'Air Pollution_squared', 'Critical_Symptom_Count',
+            'Age_Group', 'Smoking_Level'
+        ]
+        
+        X = df_fe[final_features]
+        
+        # Scale features
+        X_scaled = self.scaler.transform(X)
+        
+        return X_scaled
+    
+    def predict(self, data):
         """
         Make prediction
         
         Args:
-            input_data (dict): Input features
-        
+            data: Dict or DataFrame with patient data
+            
         Returns:
-            tuple: (prediction, probability)
+            Predicted risk level (Low, Medium, High)
         """
-        # Prepare features
-        X = self.prepare_features(input_data)
-        
-        # Scale
-        X_scaled = self.scaler.transform(X)
-        
-        # Predict
-        prediction = self.model.predict(X_scaled)[0]
-        probability = self.model.predict_proba(X_scaled)[0]
-        
-        return prediction, probability
+        X = self.preprocess(data)
+        prediction = self.model.predict(X)
+        return prediction[0]
     
-    def predict_with_details(self, input_data):
+    def predict_proba(self, data):
         """
-        Make prediction with detailed output
+        Get prediction probabilities
         
         Args:
-            input_data (dict): Input features
-        
+            data: Dict or DataFrame with patient data
+            
         Returns:
-            dict: Detailed prediction results
+            Dict with probabilities for each class
         """
-        prediction, probability = self.predict(input_data)
+        X = self.preprocess(data)
+        proba = self.model.predict_proba(X)[0]
         
-        # Get class labels
         classes = self.model.classes_
+        return {cls: prob for cls, prob in zip(classes, proba)}
+    
+    def predict_with_details(self, data):
+        """
+        Make prediction with detailed information
         
-        # Create detailed result
-        result = {
-            'prediction': prediction,
-            'risk_level': 'High' if prediction == 'High' else 'Low',
-            'probability': {
-                classes[0]: float(probability[0]),
-                classes[1]: float(probability[1])
-            },
-            'confidence': float(max(probability)),
-            'input_data': input_data
+        Args:
+            data: Dict or DataFrame with patient data
+            
+        Returns:
+            Dict with prediction, probabilities, and risk factors
+        """
+        prediction = self.predict(data)
+        probabilities = self.predict_proba(data)
+        
+        # Identify top risk factors
+        if isinstance(data, dict):
+            df = pd.DataFrame([data])
+        else:
+            df = data.copy()
+        
+        df_fe = self.engineer_features(df)
+        
+        risk_factors = {
+            'Lifestyle Risk': df_fe['Lifestyle_Risk'].values[0],
+            'Environmental Risk': df_fe['Environmental_Risk'].values[0],
+            'Genetic/Health Risk': df_fe['Genetic_Health_Risk'].values[0],
+            'Symptom Severity': df_fe['Symptom_Severity'].values[0],
+            'Critical Symptoms': df_fe['Critical_Symptom_Count'].values[0]
         }
         
-        return result
+        return {
+            'prediction': prediction,
+            'probabilities': probabilities,
+            'confidence': max(probabilities.values()),
+            'risk_factors': risk_factors,
+            'overall_risk_score': df_fe['Overall_Risk_Score'].values[0]
+        }
 
-
-# Test function
-if __name__ == "__main__":
-    # Sample input
-    sample_input = {
-        'Age': 45,
+# =============================================================================
+# EXAMPLE USAGE
+# =============================================================================
+def main():
+    """Example usage of predictor"""
+    
+    print("="*80)
+    print("CANCER RISK PREDICTOR - INFERENCE EXAMPLE")
+    print("="*80)
+    
+    # Initialize predictor
+    predictor = CancerRiskPredictor()
+    
+    # Example patient data
+    patient_data = {
+        'Age': 55,
+        'Gender': 1,
         'Air Pollution': 7,
-        'Alcohol use': 3,
+        'Alcohol use': 6,
         'Dust Allergy': 5,
-        'OccuPational Hazards': 4,
-        'Genetic Risk': 6,
-        'chronic Lung Disease': 3,
-        'Balanced Diet': 4,
-        'Obesity': 5,
-        'Smoking': 8,
-        'Passive Smoker': 6,
-        'Chest Pain': 5,
-        'Coughing of Blood': 2,
-        'Fatigue': 6,
-        'Weight Loss': 4,
-        'Shortness of Breath': 5,
-        'Wheezing': 4,
-        'Swallowing Difficulty': 3,
-        'Clubbing of Finger Nails': 2,
+        'OccuPational Hazards': 6,
+        'Genetic Risk': 5,
+        'chronic Lung Disease': 4,
+        'Balanced Diet': 3,
+        'Obesity': 6,
+        'Smoking': 7,
+        'Passive Smoker': 5,
+        'Chest Pain': 7,
+        'Coughing of Blood': 6,
+        'Fatigue': 7,
+        'Weight Loss': 5,
+        'Shortness of Breath': 8,
+        'Wheezing': 6,
+        'Swallowing Difficulty': 4,
+        'Clubbing of Finger Nails': 3,
         'Frequent Cold': 4,
         'Dry Cough': 5,
         'Snoring': 3
     }
     
-    # Initialize predictor
-    predictor = LungCancerPredictor()
+    print("\n📋 Patient Data:")
+    print("-"*80)
+    for key, value in list(patient_data.items())[:5]:
+        print(f"   {key:30s}: {value}")
+    print("   ...")
     
-    # Make prediction
-    result = predictor.predict_with_details(sample_input)
+    # Simple prediction
+    print("\n🔮 Making Prediction...")
+    prediction = predictor.predict(patient_data)
+    print(f"✅ Predicted Risk Level: {prediction}")
     
-    print("\n" + "="*50)
-    print("PREDICTION RESULT")
-    print("="*50)
-    print(f"Risk Level: {result['risk_level']}")
-    print(f"Confidence: {result['confidence']:.2%}")
-    print(f"Probabilities: {result['probability']}")
-    print("="*50)
+    # Prediction with probabilities
+    print("\n📊 Prediction Probabilities:")
+    probabilities = predictor.predict_proba(patient_data)
+    for level, prob in probabilities.items():
+        print(f"   {level:10s}: {prob:.4f} ({prob*100:.2f}%)")
+    
+    # Detailed prediction
+    print("\n📈 Detailed Analysis:")
+    print("-"*80)
+    details = predictor.predict_with_details(patient_data)
+    
+    print(f"\n🎯 Prediction: {details['prediction']}")
+    print(f"🎲 Confidence: {details['confidence']:.4f} ({details['confidence']*100:.2f}%)")
+    
+    print(f"\n⚠️ Risk Factors:")
+    for factor, score in details['risk_factors'].items():
+        print(f"   {factor:25s}: {score:.2f}")
+    
+    print(f"\n💯 Overall Risk Score: {details['overall_risk_score']:.2f}")
+    
+    print("\n" + "="*80)
+    print("INFERENCE COMPLETED! ✅")
+    print("="*80)
+
+if __name__ == '__main__':
+    main()

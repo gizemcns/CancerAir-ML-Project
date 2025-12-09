@@ -1,0 +1,47 @@
+BASELINE FEATURES:
+==================================================
+- Age
+- Gender
+- Air Pollution
+- Alcohol use
+- Dust Allergy
+- OccuPational Hazards
+- Genetic Risk
+- chronic Lung Disease
+- Balanced Diet
+- Obesity
+- Smoking
+- Passive Smoker
+- Chest Pain
+- Coughing of Blood
+- Fatigue
+- Weight Loss
+- Shortness of Breath
+- Wheezing
+- Swallowing Difficulty
+- Clubbing of Finger Nails
+- Frequent Cold
+- Dry Cough
+- Snoring
+
+
+NEW FEATURES:
+==================================================
+- Age_Group
+- Lifestyle_Risk
+- Genetic_Health_Risk
+- Symptom_Severity
+- Respiratory_Score
+- Critical_Symptom_Count
+- Environmental_Risk
+- Overall_Risk_Score
+- Smoking_Age_Interaction
+- Genetic_Age_Interaction
+- Smoking_Pollution
+- Obesity_ChronicLung
+- PassiveSmoker_Pollution
+- Smoking_squared
+- Air Pollution_squared
+- Genetic Risk_squared
+- Smoking_Level
+- Pollution_Level

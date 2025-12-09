@@ -174,7 +174,7 @@ Kısa Yorum:
 Yaş aralığı 30 -40 arasında yoğunlaşmaktadır. Daha geç yaşlar için sayılar düşmüştür.
 Özellikle 20–45 yaş arası çok yoğunken 60+ çok daha az sayıda kişi bulunmaktadır.
 
-## 🔥 5. Korelasyon Analizi
+##  5. Korelasyon Analizi
 
 
 ### ✔ Sayısal Korelasyon Matrisi
@@ -195,28 +195,40 @@ Genel olarak korelasyon matrisi, risk faktörleri ve semptomların kümelendiği
 
 
 
-## ⭐ 6. Feature Importance (Hızlı Model Sonucu):
+## 6. Feature Importance (Hızlı Model Sonucu)
 
-Buraya RF importance grafiğini ekle:
+Bu aşamada, veri setindeki değişkenlerin hedef değişken (Level: Low–Medium–High) üzerindeki etkisini hızlıca görebilmek için basit bir **Random Forest** modeli eğitilmiş ve değişken önem seviyeleri çıkarılmıştır.
 
-docs/plots/feature_importance.png
+### 📊 Feature Importance Grafiği
 
-📝 Kısa Yorum:
+![Feature Importance](../docs/PNG/feature_importance.png)
 
-Model, en önemli değişkenler olarak:
+---
 
-Smoking
+### Kısa Yorum
 
-Genetic Risk
+Random Forest modeline göre en önemli değişkenler:
 
-Chronic Lung Disease
+- **Obesity**
+- **Wheezing**
+- **Passive Smoker**
 
-Air Pollution
-gibi özellikleri öne çıkarmıştır.
+Bu değişkenler, model tarafından kanser riskini belirlemede daha güçlü sinyaller olarak değerlendirilmiştir.
 
-Balanced Diet – Obesity gibi bazı değişkenlerin önem skoru çok düşüktür.
+Daha düşük öneme sahip olan değişkenler:
 
-## 🧠 7. Veri Kalitesi Değerlendirmesi
+- **Age**
+- **Dry Cough**
+- **Chronic Lung Cancer**
+
+Bu özellikler, model için çok daha zayıf ayrım gücü göstermektedir.
+
+**Sonuç olarak**, model en çok yaşam alışkanlıkları ve genetik faktörleri dikkate alarak sınıf ayrımı yapmaya çalışmaktadır.
+
+---
+
+
+## 7. Veri Kalitesi Değerlendirmesi
 
 ✔ Güçlü yanlar:
 
@@ -236,7 +248,7 @@ Birçok kolon ordinal ama “1–8 neyi temsil ediyor?” net değil
 
 Bazı kolonlar birbirine çok benzer (multicollinearity)
 
-## 🧩 8. Modellemeye Alınacak Kolonlar Hakkında Karar
+## 8. Modellemeye Alınacak Kolonlar Hakkında Karar
 
 ✔ Güçlü etkisi olan kolonlar:
 
@@ -256,7 +268,7 @@ Obesity
 
 Fatigue gibi düşük varyanslı kolonlar
 
-🎉 SONUÇ
+# SONUÇ
 
 EDA tamamlanmış, veri yapısı, kalite analizi, hedef dağılımı ve önemli değişkenler belirlenmiştir.
 Modelleme aşamasına geçmek için gerekli tüm temel bilgiler hazırdır.
