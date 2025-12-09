@@ -135,7 +135,7 @@ lung-cancer-prediction/
 ```bash
 git clone https://github.com/kullanici-adin/lung-cancer-prediction.git
 cd lung-cancer-prediction
-pip install -r requirements1.txt
+pip install -r requirements.txt
 ```
 
 ### Veri Hazırlama
