@@ -22,7 +22,7 @@ except:
     FINAL_SCALER_PATH = 'models/final_scaler.pkl'
     CRITICAL_SYMPTOM_THRESHOLD = 6
 
-class CancerRiskPredictor:
+class LungCancerPredictor:
     """
     Cancer Risk Level Predictor
     

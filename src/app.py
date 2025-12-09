@@ -1,381 +1,268 @@
 """
-FastAPI Application - Cancer Risk Prediction
-=============================================
-REST API for cancer risk prediction service
+Streamlit Web Application for Lung Cancer Risk Prediction
+Clean version - No FastAPI, No uvicorn
 """
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+from inference import LungCancerPredictor
 
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, validator
-from typing import Dict, List, Optional
-import uvicorn
-from datetime import datetime
-import logging
-
-# Import inference module
-try:
-    from inference import CancerRiskPredictor
-except:
-    print("⚠️ Warning: inference.py not found. Using mock predictor.")
-    CancerRiskPredictor = None
-
-# =============================================================================
-# CONFIGURATION
-# =============================================================================
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-# =============================================================================
-# DATA MODELS
-# =============================================================================
-class PatientData(BaseModel):
-    """Patient input data model"""
-    Age: int = Field(..., ge=14, le=100, description="Patient age (14-100)")
-    Gender: int = Field(..., ge=1, le=2, description="Gender (1=Male, 2=Female)")
-    Air_Pollution: int = Field(..., ge=1, le=8, description="Air Pollution level (1-8)")
-    Alcohol_use: int = Field(..., ge=1, le=8, description="Alcohol use level (1-8)")
-    Dust_Allergy: int = Field(..., ge=1, le=8, description="Dust Allergy level (1-8)")
-    OccuPational_Hazards: int = Field(..., ge=1, le=8, description="Occupational Hazards (1-8)")
-    Genetic_Risk: int = Field(..., ge=1, le=7, description="Genetic Risk (1-7)")
-    chronic_Lung_Disease: int = Field(..., ge=1, le=7, description="Chronic Lung Disease (1-7)")
-    Balanced_Diet: int = Field(..., ge=1, le=7, description="Balanced Diet (1-7)")
-    Obesity: int = Field(..., ge=1, le=7, description="Obesity level (1-7)")
-    Smoking: int = Field(..., ge=1, le=8, description="Smoking level (1-8)")
-    Passive_Smoker: int = Field(..., ge=1, le=8, description="Passive Smoker (1-8)")
-    Chest_Pain: int = Field(..., ge=1, le=9, description="Chest Pain (1-9)")
-    Coughing_of_Blood: int = Field(..., ge=1, le=9, description="Coughing of Blood (1-9)")
-    Fatigue: int = Field(..., ge=1, le=9, description="Fatigue (1-9)")
-    Weight_Loss: int = Field(..., ge=1, le=8, description="Weight Loss (1-8)")
-    Shortness_of_Breath: int = Field(..., ge=1, le=9, description="Shortness of Breath (1-9)")
-    Wheezing: int = Field(..., ge=1, le=8, description="Wheezing (1-8)")
-    Swallowing_Difficulty: int = Field(..., ge=1, le=8, description="Swallowing Difficulty (1-8)")
-    Clubbing_of_Finger_Nails: int = Field(..., ge=1, le=9, description="Clubbing of Finger Nails (1-9)")
-    Frequent_Cold: int = Field(..., ge=1, le=7, description="Frequent Cold (1-7)")
-    Dry_Cough: int = Field(..., ge=1, le=7, description="Dry Cough (1-7)")
-    Snoring: int = Field(..., ge=1, le=7, description="Snoring (1-7)")
-    
-    class Config:
-        schema_extra = {
-            "example": {
-                "Age": 55,
-                "Gender": 1,
-                "Air_Pollution": 7,
-                "Alcohol_use": 6,
-                "Dust_Allergy": 5,
-                "OccuPational_Hazards": 6,
-                "Genetic_Risk": 5,
-                "chronic_Lung_Disease": 4,
-                "Balanced_Diet": 3,
-                "Obesity": 6,
-                "Smoking": 7,
-                "Passive_Smoker": 5,
-                "Chest_Pain": 7,
-                "Coughing_of_Blood": 6,
-                "Fatigue": 7,
-                "Weight_Loss": 5,
-                "Shortness_of_Breath": 8,
-                "Wheezing": 6,
-                "Swallowing_Difficulty": 4,
-                "Clubbing_of_Finger_Nails": 3,
-                "Frequent_Cold": 4,
-                "Dry_Cough": 5,
-                "Snoring": 3
-            }
-        }
-    
-    def to_dict(self):
-        """Convert to dictionary with proper column names"""
-        return {
-            'Age': self.Age,
-            'Gender': self.Gender,
-            'Air Pollution': self.Air_Pollution,
-            'Alcohol use': self.Alcohol_use,
-            'Dust Allergy': self.Dust_Allergy,
-            'OccuPational Hazards': self.OccuPational_Hazards,
-            'Genetic Risk': self.Genetic_Risk,
-            'chronic Lung Disease': self.chronic_Lung_Disease,
-            'Balanced Diet': self.Balanced_Diet,
-            'Obesity': self.Obesity,
-            'Smoking': self.Smoking,
-            'Passive Smoker': self.Passive_Smoker,
-            'Chest Pain': self.Chest_Pain,
-            'Coughing of Blood': self.Coughing_of_Blood,
-            'Fatigue': self.Fatigue,
-            'Weight Loss': self.Weight_Loss,
-            'Shortness of Breath': self.Shortness_of_Breath,
-            'Wheezing': self.Wheezing,
-            'Swallowing Difficulty': self.Swallowing_Difficulty,
-            'Clubbing of Finger Nails': self.Clubbing_of_Finger_Nails,
-            'Frequent Cold': self.Frequent_Cold,
-            'Dry Cough': self.Dry_Cough,
-            'Snoring': self.Snoring
-        }
-
-class PredictionResponse(BaseModel):
-    """Prediction response model"""
-    prediction: str
-    confidence: float
-    probabilities: Dict[str, float]
-    risk_factors: Dict[str, float]
-    overall_risk_score: float
-    timestamp: str
-    recommendations: List[str]
-
-class HealthResponse(BaseModel):
-    """Health check response"""
-    status: str
-    timestamp: str
-    model_loaded: bool
-
-class BatchPredictionRequest(BaseModel):
-    """Batch prediction request"""
-    patients: List[PatientData]
-
-# =============================================================================
-# INITIALIZE APP
-# =============================================================================
-app = FastAPI(
-    title="Cancer Risk Prediction API",
-    description="Predict cancer risk level based on patient data",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
-)
-
-# CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+# Page config
+st.set_page_config(
+    page_title="Lung Cancer Risk Predictor",
+    page_icon="🫁",
+    layout="wide"
 )
 
 # Initialize predictor
-predictor = None
+@st.cache_resource
+def load_predictor():
+    return LungCancerPredictor()
 
-@app.on_event("startup")
-async def startup_event():
-    """Initialize predictor on startup"""
-    global predictor
-    try:
-        if CancerRiskPredictor:
-            predictor = CancerRiskPredictor()
-            logger.info("✅ Predictor initialized successfully")
+try:
+    predictor = load_predictor()
+except Exception as e:
+    st.error(f"Error loading model: {e}")
+    st.info("Make sure to run notebooks/06_pipeline.ipynb first to generate model files!")
+    st.stop()
+
+# Title and description
+st.title("🫁 Lung Cancer Risk Prediction System")
+st.markdown("""
+This application predicts lung cancer risk based on air pollution, lifestyle factors, and health indicators.
+Enter patient information in the sidebar and click **Predict** to see the risk assessment.
+""")
+
+# Sidebar - Input Form
+st.sidebar.header("📋 Patient Information")
+
+# Demographic info
+st.sidebar.subheader("Demographics")
+age = st.sidebar.slider("Age", 18, 90, 45)
+
+# Environmental factors
+st.sidebar.subheader("Environmental Factors")
+air_pollution = st.sidebar.slider("Air Pollution Level", 1, 10, 5, 
+                                  help="1=Low, 10=High")
+dust_allergy = st.sidebar.slider("Dust Allergy", 1, 10, 5)
+occupational_hazards = st.sidebar.slider("Occupational Hazards", 1, 10, 4)
+
+# Lifestyle factors
+st.sidebar.subheader("Lifestyle Factors")
+smoking = st.sidebar.slider("Smoking Level", 1, 10, 5, 
+                            help="1=Non-smoker, 10=Heavy smoker")
+passive_smoker = st.sidebar.slider("Passive Smoker Exposure", 1, 10, 4)
+alcohol_use = st.sidebar.slider("Alcohol Use", 1, 10, 3)
+balanced_diet = st.sidebar.slider("Balanced Diet", 1, 10, 5,
+                                 help="1=Poor, 10=Excellent")
+obesity = st.sidebar.slider("Obesity Level", 1, 10, 4)
+
+# Health factors
+st.sidebar.subheader("Health Indicators")
+genetic_risk = st.sidebar.slider("Genetic Risk", 1, 10, 4)
+chronic_lung_disease = st.sidebar.slider("Chronic Lung Disease", 1, 10, 3)
+
+# Symptoms
+st.sidebar.subheader("Symptoms")
+chest_pain = st.sidebar.slider("Chest Pain", 1, 10, 4)
+coughing_blood = st.sidebar.slider("Coughing of Blood", 1, 10, 2)
+fatigue = st.sidebar.slider("Fatigue", 1, 10, 5)
+weight_loss = st.sidebar.slider("Weight Loss", 1, 10, 3)
+shortness_breath = st.sidebar.slider("Shortness of Breath", 1, 10, 4)
+wheezing = st.sidebar.slider("Wheezing", 1, 10, 3)
+swallowing_difficulty = st.sidebar.slider("Swallowing Difficulty", 1, 10, 2)
+clubbing_nails = st.sidebar.slider("Clubbing of Finger Nails", 1, 10, 2)
+frequent_cold = st.sidebar.slider("Frequent Cold", 1, 10, 4)
+dry_cough = st.sidebar.slider("Dry Cough", 1, 10, 4)
+snoring = st.sidebar.slider("Snoring", 1, 10, 3)
+
+# Predict button
+predict_button = st.sidebar.button("🔮 Predict Risk", type="primary")
+
+# Main area
+if predict_button:
+    # Prepare input data
+    input_data = {
+        'Age': age,
+        'Air Pollution': air_pollution,
+        'Alcohol use': alcohol_use,
+        'Dust Allergy': dust_allergy,
+        'OccuPational Hazards': occupational_hazards,
+        'Genetic Risk': genetic_risk,
+        'chronic Lung Disease': chronic_lung_disease,
+        'Balanced Diet': balanced_diet,
+        'Obesity': obesity,
+        'Smoking': smoking,
+        'Passive Smoker': passive_smoker,
+        'Chest Pain': chest_pain,
+        'Coughing of Blood': coughing_blood,
+        'Fatigue': fatigue,
+        'Weight Loss': weight_loss,
+        'Shortness of Breath': shortness_breath,
+        'Wheezing': wheezing,
+        'Swallowing Difficulty': swallowing_difficulty,
+        'Clubbing of Finger Nails': clubbing_nails,
+        'Frequent Cold': frequent_cold,
+        'Dry Cough': dry_cough,
+        'Snoring': snoring
+    }
+    
+    # Make prediction
+    with st.spinner("Analyzing patient data..."):
+        try:
+            result = predictor.predict_with_details(input_data)
+        except Exception as e:
+            st.error(f"Prediction failed: {e}")
+            st.info("Please check that all required files are present and try again.")
+            st.stop()
+    
+    # Display results
+    st.header("📊 Prediction Results")
+    
+    # Risk level with color coding
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        risk_level = result['risk_level']
+        if risk_level == 'High':
+            st.error(f"### ⚠️ {risk_level} Risk")
         else:
-            logger.warning("⚠️ CancerRiskPredictor not available")
-    except Exception as e:
-        logger.error(f"❌ Failed to initialize predictor: {e}")
-
-# =============================================================================
-# API ENDPOINTS
-# =============================================================================
-
-@app.get("/", response_model=HealthResponse)
-async def root():
-    """Root endpoint - health check"""
-    return {
-        "status": "healthy",
-        "timestamp": datetime.now().isoformat(),
-        "model_loaded": predictor is not None
-    }
-
-@app.get("/health", response_model=HealthResponse)
-async def health_check():
-    """Health check endpoint"""
-    return {
-        "status": "healthy" if predictor else "model not loaded",
-        "timestamp": datetime.now().isoformat(),
-        "model_loaded": predictor is not None
-    }
-
-@app.post("/predict", response_model=PredictionResponse)
-async def predict(patient: PatientData):
-    """
-    Predict cancer risk level for a patient
+            st.success(f"### ✅ {risk_level} Risk")
     
-    Args:
-        patient: Patient data
-        
-    Returns:
-        Prediction with probabilities and risk factors
-    """
-    if not predictor:
-        raise HTTPException(status_code=503, detail="Model not loaded")
+    with col2:
+        confidence = result['confidence']
+        st.metric("Confidence", f"{confidence:.1%}")
     
-    try:
-        # Convert to dictionary
-        patient_dict = patient.to_dict()
-        
-        # Get prediction with details
-        result = predictor.predict_with_details(patient_dict)
-        
-        # Generate recommendations based on risk factors
-        recommendations = generate_recommendations(result['risk_factors'], result['prediction'])
-        
-        return {
-            "prediction": result['prediction'],
-            "confidence": result['confidence'],
-            "probabilities": result['probabilities'],
-            "risk_factors": result['risk_factors'],
-            "overall_risk_score": result['overall_risk_score'],
-            "timestamp": datetime.now().isoformat(),
-            "recommendations": recommendations
-        }
-        
-    except Exception as e:
-        logger.error(f"Prediction error: {e}")
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
-
-@app.post("/predict/batch")
-async def batch_predict(request: BatchPredictionRequest):
-    """
-    Batch prediction for multiple patients
+    with col3:
+        prob_high = result['probability'].get('High', result['probability'].get('high', 0))
+        st.metric("High Risk Probability", f"{prob_high:.1%}")
     
-    Args:
-        request: List of patient data
-        
-    Returns:
-        List of predictions
-    """
-    if not predictor:
-        raise HTTPException(status_code=503, detail="Model not loaded")
+    # Probability visualization
+    st.subheader("Risk Probability Distribution")
     
-    try:
-        results = []
-        
-        for patient in request.patients:
-            patient_dict = patient.to_dict()
-            result = predictor.predict_with_details(patient_dict)
-            recommendations = generate_recommendations(result['risk_factors'], result['prediction'])
-            
-            results.append({
-                "prediction": result['prediction'],
-                "confidence": result['confidence'],
-                "probabilities": result['probabilities'],
-                "risk_factors": result['risk_factors'],
-                "overall_risk_score": result['overall_risk_score'],
-                "recommendations": recommendations
-            })
-        
-        return {
-            "predictions": results,
-            "count": len(results),
-            "timestamp": datetime.now().isoformat()
-        }
-        
-    except Exception as e:
-        logger.error(f"Batch prediction error: {e}")
-        raise HTTPException(status_code=500, detail=f"Batch prediction failed: {str(e)}")
-
-@app.get("/model/info")
-async def model_info():
-    """Get model information"""
-    if not predictor:
-        raise HTTPException(status_code=503, detail="Model not loaded")
+    prob_df = pd.DataFrame({
+        'Risk Level': list(result['probability'].keys()),
+        'Probability': list(result['probability'].values())
+    })
     
-    return {
-        "model_type": "Random Forest Classifier",
-        "features_count": 28,
-        "classes": ["Low", "Medium", "High"],
-        "version": "1.0.0",
-        "trained_date": "2024",
-        "framework": "scikit-learn"
-    }
-
-@app.get("/risk/factors")
-async def risk_factors_info():
-    """Get information about risk factors"""
-    return {
-        "risk_factors": {
-            "Lifestyle Risk": {
-                "description": "Combined score of smoking, alcohol, obesity, and diet",
-                "range": [0, 10],
-                "components": ["Smoking", "Alcohol use", "Obesity", "Balanced Diet"]
-            },
-            "Environmental Risk": {
-                "description": "Combined score of environmental exposures",
-                "range": [0, 8],
-                "components": ["Air Pollution", "Dust Allergy", "Occupational Hazards"]
-            },
-            "Genetic/Health Risk": {
-                "description": "Genetic predisposition and chronic conditions",
-                "range": [0, 7],
-                "components": ["Genetic Risk", "Chronic Lung Disease"]
-            },
-            "Symptom Severity": {
-                "description": "Average severity of all symptoms",
-                "range": [0, 9],
-                "components": ["Chest Pain", "Coughing of Blood", "Fatigue", "Weight Loss", "etc."]
-            },
-            "Critical Symptoms": {
-                "description": "Count of severe symptoms (≥6 level)",
-                "range": [0, 4],
-                "components": ["Chest Pain", "Coughing of Blood", "Weight Loss", "Shortness of Breath"]
-            }
-        }
-    }
-
-# =============================================================================
-# UTILITY FUNCTIONS
-# =============================================================================
-
-def generate_recommendations(risk_factors: Dict[str, float], prediction: str) -> List[str]:
-    """
-    Generate personalized recommendations based on risk factors
+    fig = go.Figure(data=[
+        go.Bar(
+            x=prob_df['Risk Level'],
+            y=prob_df['Probability'],
+            marker_color=['#00cc96' if p < 0.5 else '#ef553b' for p in prob_df['Probability']],
+            text=[f"{p:.1%}" for p in prob_df['Probability']],
+            textposition='auto',
+        )
+    ])
     
-    Args:
-        risk_factors: Dictionary of risk factor scores
-        prediction: Predicted risk level
-        
-    Returns:
-        List of recommendations
-    """
-    recommendations = []
-    
-    # General recommendation based on risk level
-    if prediction == "High":
-        recommendations.append("🚨 Seek immediate medical consultation for comprehensive cancer screening")
-    elif prediction == "Medium":
-        recommendations.append("⚠️ Schedule a medical check-up within the next month")
-    else:
-        recommendations.append("✅ Maintain regular health check-ups and healthy lifestyle")
-    
-    # Lifestyle recommendations
-    if risk_factors['Lifestyle Risk'] > 6:
-        recommendations.append("🚭 Consider smoking cessation programs and reduce alcohol consumption")
-        recommendations.append("🏃 Adopt regular exercise routine and balanced diet")
-    
-    # Environmental recommendations
-    if risk_factors['Environmental Risk'] > 6:
-        recommendations.append("🏭 Minimize exposure to pollutants and use protective equipment at work")
-        recommendations.append("🏠 Consider air purifiers for indoor air quality")
-    
-    # Symptom-based recommendations
-    if risk_factors['Symptom Severity'] > 6:
-        recommendations.append("🩺 Document all symptoms and discuss with healthcare provider")
-    
-    if risk_factors['Critical Symptoms'] >= 2:
-        recommendations.append("🚑 Critical symptoms detected - seek immediate medical attention")
-    
-    # General health recommendations
-    recommendations.append("💊 Follow prescribed medications and treatment plans")
-    recommendations.append("📊 Monitor symptoms regularly and keep health records")
-    
-    return recommendations
-
-# =============================================================================
-# RUN SERVER
-# =============================================================================
-
-if __name__ == "__main__":
-    uvicorn.run(
-        "app:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        log_level="info"
+    fig.update_layout(
+        title="Probability by Risk Level",
+        xaxis_title="Risk Level",
+        yaxis_title="Probability",
+        yaxis_tickformat='.0%',
+        height=400
     )
+    
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Risk factors summary
+    st.subheader("Key Risk Factors")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("**High Risk Factors:**")
+        high_factors = []
+        if smoking >= 7:
+            high_factors.append(f"• Smoking: {smoking}/10")
+        if air_pollution >= 7:
+            high_factors.append(f"• Air Pollution: {air_pollution}/10")
+        if genetic_risk >= 7:
+            high_factors.append(f"• Genetic Risk: {genetic_risk}/10")
+        if alcohol_use >= 7:
+            high_factors.append(f"• Alcohol Use: {alcohol_use}/10")
+        
+        if high_factors:
+            for factor in high_factors:
+                st.markdown(factor)
+        else:
+            st.markdown("No major high-risk factors identified")
+    
+    with col2:
+        st.markdown("**Protective Factors:**")
+        protective = []
+        if balanced_diet >= 7:
+            protective.append(f"• Good Balanced Diet: {balanced_diet}/10")
+        if smoking <= 3:
+            protective.append(f"• Low Smoking: {smoking}/10")
+        if obesity <= 3:
+            protective.append(f"• Normal Weight: {obesity}/10")
+        
+        if protective:
+            for factor in protective:
+                st.markdown(factor)
+        else:
+            st.markdown("Limited protective factors")
+    
+    # Recommendations
+    st.subheader("💡 Recommendations")
+    
+    if risk_level == 'High':
+        st.warning("""
+        **⚠️ High Risk Detected:**
+        - Consult with a healthcare professional immediately
+        - Consider comprehensive screening tests
+        - Reduce exposure to risk factors (smoking, pollution)
+        - Improve lifestyle habits (diet, exercise)
+        - Regular health monitoring recommended
+        """)
+    else:
+        st.info("""
+        **✅ Low Risk Detected:**
+        - Maintain current healthy lifestyle
+        - Continue regular health check-ups
+        - Be mindful of environmental exposures
+        - Early detection is key - monitor any symptoms
+        """)
+
+else:
+    # Welcome message when no prediction made
+    st.info("👈 Enter patient information in the sidebar and click **Predict Risk** to begin analysis.")
+    
+    # Show sample statistics
+    st.subheader("📈 About This System")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.metric("Model Accuracy", "~85%")
+    
+    with col2:
+        st.metric("Features Analyzed", "22+")
+    
+    with col3:
+        st.metric("Risk Categories", "2")
+    
+    st.markdown("""
+    ### How It Works
+    
+    This system uses machine learning (XGBoost) to analyze multiple factors:
+    - **Environmental:** Air pollution, occupational hazards
+    - **Lifestyle:** Smoking, alcohol use, diet, obesity
+    - **Health:** Genetic risk, chronic conditions, symptoms
+    
+    The model was trained on patient data and validated to ensure reliable predictions.
+    
+    ### Important Note
+    ⚠️ This tool is for informational purposes only and should not replace professional medical advice.
+    Always consult with healthcare providers for proper diagnosis and treatment.
+    """)
+
+# Footer
+st.markdown("---")
+st.markdown("""
+<div style='text-align: center'>
+    <p>🫁 Lung Cancer Risk Prediction System | Zero2End ML Bootcamp 2024</p>
+    <p>Built with Streamlit, XGBoost, and scikit-learn</p>
+</div>
+""", unsafe_allow_html=True)

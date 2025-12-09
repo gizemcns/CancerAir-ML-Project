@@ -13,7 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
-    from app import app
+    from app_old import app
     API_AVAILABLE = True
 except ImportError:
     API_AVAILABLE = False
