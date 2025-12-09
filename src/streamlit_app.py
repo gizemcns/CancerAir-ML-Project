@@ -158,7 +158,48 @@ if submit_button and PREDICTOR_AVAILABLE:
     # Get prediction
     with st.spinner('Analyzing patient data...'):
         result = st.session_state.predictor.predict_with_details(patient_data)
-    
+    # =========================
+    # Risk Level Calculation
+    # =========================
+    if 'prediction' in result:
+        risk_level = result['prediction']
+    else:
+        score = result.get('overall_risk_score', 0)
+        if score < 0.3:
+            risk_level = "Low"
+        elif score < 0.7:
+            risk_level = "Medium"
+        else:
+            risk_level = "High"
+    result['risk_level'] = risk_level
+
+    # Store in history
+    st.session_state.prediction_history.append({
+        'timestamp': datetime.now(),
+        'prediction': risk_level,
+        'confidence': result['confidence']
+    })
+
+    # Display results
+    st.markdown("## 🎯 Prediction Results")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.metric("Predicted Risk Level", result['risk_level'])
+
+    with col2:
+        st.metric("Confidence", f"{result['confidence']*100:.1f}%")
+
+    with col3:
+        st.metric("Overall Risk Score", f"{result['overall_risk_score']:.2f}")
+
+    # Risk level box
+    risk_class = f"risk-{result['risk_level'].lower()}"
+    st.markdown(
+        f'<div class="risk-box {risk_class}">Risk Level: {result["risk_level"]}</div>',
+        unsafe_allow_html=True
+    )
     # Store in history
     st.session_state.prediction_history.append({
         'timestamp': datetime.now(),
@@ -352,3 +393,40 @@ st.markdown("""
     <p>© 2024 Cancer Risk Prediction System | Powered by ML</p>
 </div>
 """, unsafe_allow_html=True)
+
+# =========================
+# Risk Level Calculation
+# =========================
+
+if 'prediction' in result:
+    risk_level = result['prediction']
+else:
+    score = result.get('overall_risk_score', 0)
+    if score < 0.3:
+        risk_level = "Low"
+    elif score < 0.7:
+        risk_level = "Medium"
+    else:
+        risk_level = "High"
+
+# Risk Level'ı result sözlüğüne ekle
+result['risk_level'] = risk_level
+
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.metric("Predicted Risk Level", result['risk_level'])
+
+with col2:
+    st.metric("Confidence", f"{result['confidence']*100:.1f}%")
+
+with col3:
+    st.metric("Overall Risk Score", f"{result['overall_risk_score']:.2f}")
+
+# Risk level box
+risk_class = f"risk-{result['risk_level'].lower()}"
+st.markdown(
+    f'<div class="risk-box {risk_class}">Risk Level: {result["risk_level"]}</div>',
+    unsafe_allow_html=True
+)
