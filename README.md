@@ -158,15 +158,15 @@ git clone https://github.com/kullanici-adin/lung-cancer-prediction.git
 cd lung-cancer-prediction
 pip install -r requirements.txt
 
-**Model Eğitimi:** [python](src/pipeline.py)
+**Model Eğitimi:** [python src/pipeline.py](src/pipeline.py)
 
 
-**Streamlit Uygulamasını Çalıştırma:** [streamlit run](src/app.py)
+**Streamlit Uygulamasını Çalıştırma:** [streamlit run src/app.py](src/app.py)
 
 🌐 **Demo**
-[Canlı Demo](https://gizemcns-cancerair-ml-project-srcapp-featmvp-06c38v.streamlit.app/)
+[Canlı Demo:https://gizemcns-cancerair-ml-project-srcapp-featmvp-06c38v.streamlit.app/](https://gizemcns-cancerair-ml-project-srcapp-featmvp-06c38v.streamlit.app/)
 
-📸 **Ekran Görüntüsü:** [Demo Screenshot](docs/ekran-görüntüsü-2025-12-09%20)
+📸 **Ekran Görüntüsü:** [Demo Screenshot docs/ekran-görüntüsü-2025-12-09%20 ](docs/ekran-görüntüsü-2025-12-09%20)
 
 
 📝 Zorunlu Dokümantasyon Soruları
@@ -184,11 +184,11 @@ pip install -r requirements.txt
 
 Geliştirici: Gizem Can Bayındır
 
-**Email:** [E-mail](gizemcans2@gmail.com)
+**Email:** [E-mail:gizemcans2@gmail.com](gizemcans2@gmail.com)
 
 **LinkedIn:** [linkedin.com/in/gizemcanbayindir](https://www.linkedin.com/in/gizemcanbayindir)
 
-**GitHub:** [Github](https://github.com/gizemcns)
+**GitHub:** [Github:https://github.com/gizemcns](https://github.com/gizemcns)
 
 
 📄 Lisans
