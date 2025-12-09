@@ -171,14 +171,14 @@ pip install -r requirements.txt
 
 📝 Zorunlu Dokümantasyon Soruları
 
-- **Problem Tanımı** → [01_eda.ipynb](notebooks/01_eda.ipynb)  
-- **Baseline Süreci** → [02_baseline.ipynb](notebooks/02_baseline.ipynb)  
-- **Feature Engineering** → [03_feature_engineering.ipynb](notebooks/03_feature_engineering.ipynb)  
-- **Validasyon Şeması** → [04_model_optimization.ipynb](notebooks/04_model_optimization.ipynb)  
-- **Final Pipeline** → [06_pipeline.ipynb](notebooks/06_pipeline.ipynb)  
-- **Model Karşılaştırma** → [05_model_evaluation.ipynb](notebooks/05_model_evaluation.ipynb)  
-- **Business Uyumu** → [docs/business_alignment.md](docs/business_alignment.md)  
-- **Production Stratejisi** → [docs/production_strategy.md](docs/production_strategy.md)  
+- **Problem Tanımı** → [01_EDA.ipynb](notebooks/01_eda.ipynb)  
+- **Baseline Süreci** → [02_Baseline.ipynb](notebooks/02_baseline.ipynb)  
+- **Feature Engineering** → [03_FeatureEngineering.ipynb](notebooks/03_feature_engineering.ipynb)  
+- **Validasyon Şeması** → [04_ModelOptimization.ipynb](notebooks/04_model_optimization.ipynb)  
+- **Final Pipeline** → [06_FinalPipeline.ipynb](notebooks/06_pipeline.ipynb)  
+- **Model Karşılaştırma** → [05_Evaluation.ipynb](notebooks/05_model_evaluation.ipynb)  
+- **Business Uyumu** → [docs/MD/business_alignment.md](docs/MD/business_alignment.md)  
+- **Production Stratejisi** → [docs/production_strategy.md](docs/MD/production_strategy.md)  
 
 👤 İletişim
 
