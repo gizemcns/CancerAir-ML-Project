@@ -166,7 +166,7 @@ pip install -r requirements.txt
 🌐 **Demo**
 [Canlı Demo](https://gizemcns-cancerair-ml-project-srcapp-featmvp-06c38v.streamlit.app/)
 
-📸 **Ekran Görüntüsü:** [Demo Screenshot](docs/PNG/ekran-görüntüsü-2025-12-09%20220639)
+📸 **Ekran Görüntüsü:** [Demo Screenshot](docs/ekran-görüntüsü-2025-12-09%20)
 
 
 📝 Zorunlu Dokümantasyon Soruları
