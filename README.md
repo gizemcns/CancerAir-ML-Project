@@ -94,12 +94,6 @@ Dokümantasyon
 
  Business kurgulu sistem tasarımı
 
- Üst yönetim sunumu (PPT / PDF)
-
- YouTube demo videosu
-
- Medium / Blog yazısı
-
 🗂️ Proje Yapısı
 lung-cancer-prediction/
 ├── .gitignore
