@@ -1,83 +1,106 @@
-"" 
-# Cancer Risk Prediction - End-to-End ML Project
-## Kanser Riski Tahmini - Uçtan Uca ML Projesi
 
----
+Cancer Risk Prediction - End-to-End ML Project
+Kanser Riski Tahmini - Uçtan Uca ML Projesi
+📌 Proje Hakkında
 
-## 📌 Proje Hakkında
+Bu proje, Zero2End Machine Learning Bootcamp kapsamında geliştirilmiş bir uçtan uca makine öğrenmesi uygulamasıdır. Hasta verilerine dayanarak, bireylerin akciğer kanseri risk seviyesini (Low, Medium, High) tahmin etmeyi amaçlamaktadır.
 
-Bu proje, **Zero2End Machine Learning Bootcamp** kapsamında geliştirilmiş uçtan uca bir makine öğrenmesi uygulamasıdır.  Hasta verilerine dayalı olarak kanser risk seviyesini (Low, Medium, High) tahmin eden uçtan uca makine öğrenmesi projesidir.
+Amaç: Hava kirliliği, yaşam tarzı ve demografik faktörleri kullanarak bireylerdeki akciğer kanseri riskini tahmin eden bir ML modeli geliştirmek ve deploy etmek.
 
+Teslim Tarihi: 9 Aralık 2025
 
-**Amaç:** Hava kirliliği, yaşam tarzı ve demografik faktörleri kullanarak bireylerdeki akciğer kanseri riskini tahmin eden bir ML modeli geliştirmek ve deploy etmek.
+🎯 Yapılacaklar Listesi
+✅ Minimum Viable Product (MVP)
 
-**Teslim Tarihi:** 9 Aralık 2025
+Proje Kurulumu
 
----
+ GitHub repository oluşturma
 
-## 🎯 Yapılacaklar Listesi
+ Klasör yapısı (data/, notebooks/, src/, models/)
 
-### ✅ Minimum Viable Product (MVP)
+ requirements.txt
 
-- [x] **Proje Kurulumu**
-  - [x] GitHub repository oluşturma
-  - [x] Klasör yapısı (data/, notebooks/, src/, models/)
-  - [x] requirements.txt
+Exploratory Data Analysis (EDA)
 
-- [x ] **Exploratory Data Analysis (EDA)**
-  - [ x] Veri yükleme ve ilk inceleme
-  - [ x] Missing value analizi
-  - [x ] Değişken dağılımları ve korelasyonlar
-  - [x ] EDA bulguları dokümantasyonu
+ Veri yükleme ve ön inceleme
 
-- [x ] **Baseline Model**
-  - [ x] Basit preprocessing pipeline
-  - [ x] İlk model eğitimi (Logistic Regression/Decision Tree)
-  - [x ] Baseline metrikler (Accuracy, F1-Score)
+ Eksik değer analizi
 
-- [x ] **Feature Engineering**
-  -[x ] Yeni feature türetme
-  - [x ] Encoding ve scaling
-  - [x ] Feature'ların model performansına etkisi
+ Değişken dağılımları ve korelasyonlar
 
-- [ ] **Model Optimization**
-  - [ ] Çoklu model karşılaştırması (RF, XGBoost, LightGBM)
-  - [ ] Hyperparameter tuning
-  - [ ] Cross-validation
+ EDA bulguları dokümantasyonu
 
-- [ ] **Model Evaluation**
-  - [ ] Feature importance analizi
-  - [ ] Confusion matrix & classification report
-  - [ ] Final model seçimi
+Baseline Model
 
-- [ ] **Pipeline Development**
-  - [ ] End-to-end ML pipeline
-  - [ ] Model serialization (pickle/joblib)
-  - [ ] Inference scripti
+ Basit preprocessing pipeline
 
-- [ ] **Deployment**
-  - [ ] Streamlit/Gradio arayüzü
-  - [ ] REST API (FastAPI/Flask)
-  - [ ] Cloud deployment (Streamlit Cloud/HuggingFace/Render)
+ İlk model eğitimi (Logistic Regression / Decision Tree)
 
-- [ ] **Dokümantasyon**
-  - [ ] README.md (bu dosya)
-  - [ ] Notebook markdown hücreleri
-  - [ ] 8 zorunlu soru cevapları
+ Baseline metrikler (Accuracy, F1-Score)
 
-### 🌟 Bonus Özellikler (Olsa Güzel Olur)
+Feature Engineering
 
-- [ ] Düzenli Git commit geçmişi
-- [ ] Monitoring dashboard
-- [ ] Business kurgulu sistem tasarımı
-- [ ] Üst yönetim sunumu (PPT/PDF)
-- [ ] YouTube demo videosu
-- [ ] Medium/Blog yazısı
+ Yeni feature türetme
 
----
+ Encoding ve scaling
 
-## 🗂️ Proje Yapısı
-```
+ Feature’ların model performansına etkisi
+
+Model Optimization
+
+ Çoklu model karşılaştırması (Random Forest, XGBoost, LightGBM)
+
+ Hyperparameter tuning
+
+ Cross-validation
+
+Model Evaluation
+
+ Feature importance analizi
+
+ Confusion matrix ve classification report
+
+ Final model seçimi
+
+Pipeline Development
+
+ End-to-end ML pipeline
+
+ Model serialization (pickle / joblib)
+
+ Inference scripti
+
+Deployment
+
+ Streamlit / Gradio arayüzü
+
+ REST API (FastAPI / Flask)
+
+ Cloud deployment (Streamlit Cloud / HuggingFace / Render)
+
+Dokümantasyon
+
+ README.md (bu dosya)
+
+ Notebook markdown hücreleri
+
+ 8 zorunlu soru-cevap
+
+🌟 Bonus Özellikler
+
+ Düzenli Git commit geçmişi
+
+ Monitoring dashboard
+
+ Business kurgulu sistem tasarımı
+
+ Üst yönetim sunumu (PPT / PDF)
+
+ YouTube demo videosu
+
+ Medium / Blog yazısı
+
+🗂️ Proje Yapısı
 lung-cancer-prediction/
 ├── .gitignore
 ├── README.md
@@ -95,107 +118,96 @@ lung-cancer-prediction/
 ├── src/
 │   ├── config.py
 │   ├── inference.py
-│   └── app.py
-    └── streamlit_app.py
+│   ├── app.py
+│   └── streamlit_app.py
 ├── models/
 │   └── final_model.pkl
 ├── docs/
 └── tests/
-```
 
----
+📊 Veri Seti
 
-## 📊 Veri Seti
+Kaynak: Kaggle - Cancer Patients and Air Pollution Dataset
 
-**Kaynak:** [Kaggle - Cancer Patients and Air Pollution Dataset](https://www.kaggle.com/datasets/thedevastator/cancer-patients-and-air-pollution-a-new-link)
+Özellikler:
 
-**Özellikler:**
-- Boyut: 1000 satır × 24 sütun
-- Format: Tabular (.csv)
-- Hedef Değişken: Akciğer kanseri varlığı (level)
-- Özellikler: Hava kirliliği seviyeleri, yaş, cinsiyet, sigara kullanımı, genetik risk faktörleri vb.
-- Eksik Değer Yok (tamamen temiz)
-- Tekrar Eden Satır Yok (0 duplicate)
-- Veri TipiT amamı sayısal (int64). Kategorik değişkenler 1-9 arası skorlarla kodlanmış
+Boyut: 1000 satır × 24 sütun
 
-## 🛠️ Teknolojiler
+Format: Tabular (.csv)
 
-- **Python 3.9+**
-- **Veri Analizi:** Pandas, NumPy, Matplotlib, Seaborn
-- **ML Kütüphaneleri:** Scikit-learn, XGBoost, LightGBM
-- **Deployment:** Streamlit / FastAPI
-- **Version Control:** Git, GitHub
-- **Cloud:** Streamlit Cloud / HuggingFace Spaces
+Hedef Değişken: Akciğer kanseri varlığı (level)
 
----
+Özellikler: Hava kirliliği seviyeleri, yaş, cinsiyet, sigara kullanımı, genetik risk faktörleri vb.
 
-## 🚀 Kurulum
+Eksik Değer: Yok
 
-### Gereksinimler
-```bash
+Tekrar Eden Satır: 0
+
+Veri Tipi: Tamamı sayısal (int64); kategorik değişkenler 1-9 arası skorlarla kodlanmış
+
+🛠️ Teknolojiler
+
+Python 3.9+
+
+Veri Analizi: Pandas, NumPy, Matplotlib, Seaborn
+
+ML Kütüphaneleri: Scikit-learn, XGBoost, LightGBM
+
+Deployment: Streamlit / FastAPI
+
+Version Control: Git, GitHub
+
+Cloud: Streamlit Cloud / HuggingFace Spaces
+
+🚀 Kurulum
 git clone https://github.com/kullanici-adin/lung-cancer-prediction.git
 cd lung-cancer-prediction
 pip install -r requirements.txt
-```
 
-### Veri Hazırlama
-
-
-
-### Model Eğitimi
-```bash
-# Tüm pipeline'ı çalıştır
+Model Eğitimi
 python src/pipeline.py
-```
 
-### Streamlit Uygulamasını Çalıştırma
-```bash
+Streamlit Uygulamasını Çalıştırma
 streamlit run src/app.py
-```
 
----
+🌐 Demo
 
-## 🌐 Demo
+🔗 Canlı Demo: (https://gizemcns-cancerair-ml-project-srcapp-featmvp-06c38v.streamlit.app/)
 
-🔗 **Canlı Demo:** [Buraya deploy linki gelecek]
-
-📸 **Ekran Görüntüsü:**
-![Demo Screenshot](docs/screenshot.png)
-
----
-
-## 📈 Sonuçlar (Güncellenecek)
+📸 Ekran Görüntüsü: ![Demo Screenshot](docs/PNG/screenshot_2025_12_09_220639.png)
 
 
+📝 Zorunlu Dokümantasyon Soruları
 
----
+✅ Problem Tanımı: [notebooks/01_eda.ipynb]
 
-## 📝 Zorunlu Dokümantasyon Soruları
+✅ Baseline Süreci: [notebooks/02_baseline.ipynb]
 
-1. ✅ **Problem Tanımı:** [notebooks/01_eda.ipynb]
-2. ✅ **Baseline Süreci:** [notebooks/02_baseline.ipynb]
-3. ✅ **Feature Engineering:** [notebooks/03_feature_engineering.ipynb]
-4. ✅ **Validasyon Şeması:** [notebooks/04_model_optimization.ipynb]
-5. ✅ **Final Pipeline:** [notebooks/06_pipeline.ipynb]
-6. ✅ **Model Karşılaştırma:** [notebooks/05_model_evaluation.ipynb]
-7. ✅ **Business Uyumu:** [docs/business_alignment.md]
-8. ✅ **Production Stratejisi:** [docs/production_strategy.md]
+✅ Feature Engineering: [notebooks/03_feature_engineering.ipynb]
 
----
+✅ Validasyon Şeması: [notebooks/04_model_optimization.ipynb]
 
-## 👤 İletişim
+✅ Final Pipeline: [notebooks/06_pipeline.ipynb]
 
-**Geliştirici:** [Gizem Can Bayındır]  
-**Email:** [gizemcans2@gmail.com]  
-**LinkedIn:** [www.linkedin.com/in/gizemcanbayındırr]  
-**GitHub:** [@gizemcns](https://github.com/gizemcns)
+✅ Model Karşılaştırma: [notebooks/05_model_evaluation.ipynb]
 
----
+✅ Business Uyumu: [docs/business_alignment.md]
 
-## 📄 Lisans
+✅ Production Stratejisi: [docs/production_strategy.md]
+
+👤 İletişim
+
+Geliştirici: Gizem Can Bayındır
+
+Email: gizemcans2@gmail.com
+
+LinkedIn: linkedin.com/in/gizemcanbayındırr
+
+GitHub: @gizemcns
+
+📄 Lisans
 
 Bu proje eğitim amaçlıdır ve Zero2End ML Bootcamp final projesi olarak geliştirilmiştir.
 
----
+Son Güncelleme: 9 Aralık 2025
 
-**Son Güncelleme:** 9 Aralık 2025
