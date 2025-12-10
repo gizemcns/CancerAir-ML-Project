@@ -4,7 +4,7 @@ Inference module for Lung Cancer Risk Prediction - FIXED VERSION
 import joblib
 import pandas as pd
 import numpy as np
-from config import MODEL_PATH, SCALER_PATH, FEATURE_NAMES_PATH
+from config import FINAL_MODEL_PATH as MODEL_PATH, FINAL_SCALER_PATH as SCALER_PATH, FEATURE_LIST_PATH as FEATURE_NAMES_PATH
 
 class LungCancerPredictor:
     def __init__(self):
@@ -16,11 +16,22 @@ class LungCancerPredictor:
     
     def load_model(self):
         """Load trained model, scaler and feature names"""
+        
+        """Eğitilmiş modeli, ölçekleyiciyi ve özellik adlarını yükle"""
+
         try:
+        # load model
             self.model = joblib.load(MODEL_PATH)
+            
+            # load scaler
             self.scaler = joblib.load(SCALER_PATH)
-            self.feature_names = joblib.load(FEATURE_NAMES_PATH)
-            print("✅ Model loaded successfully!")
+
+            # load feature names from .txt file
+            with open(FEATURE_NAMES_PATH, "r") as f:
+                self.feature_names = [line.strip() for line in f.readlines()]
+
+            print("✅ Model, scaler ve feature list başarıyla yüklendi!")
+
         except Exception as e:
             print(f"❌ Error loading model: {e}")
             raise
