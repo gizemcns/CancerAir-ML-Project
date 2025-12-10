@@ -6,7 +6,10 @@ import pandas as pd
 import numpy as np
 from config import FINAL_MODEL_PATH as MODEL_PATH, FINAL_SCALER_PATH as SCALER_PATH, FEATURE_LIST_PATH as FEATURE_NAMES_PATH
 
+
+
 class LungCancerPredictor:
+
     def __init__(self):
         """Initialize predictor with saved model and scaler"""
         self.model = None
@@ -25,55 +28,159 @@ class LungCancerPredictor:
             
             # load scaler
             self.scaler = joblib.load(SCALER_PATH)
-
-            # load feature names from .txt file
+        
+            # Feature list
             with open(FEATURE_NAMES_PATH, "r") as f:
                 self.feature_names = [line.strip() for line in f.readlines()]
+
+            # ⭐⭐ EKLEYECEĞİN SATIR TAM BURAYA ⭐⭐
+            print("🔥 SCALER FEATURE LIST:", self.scaler.feature_names_in_)
 
             print("✅ Model, scaler ve feature list başarıyla yüklendi!")
 
         except Exception as e:
-            print(f"❌ Error loading model: {e}")
-            raise
+                print(f"❌ Error loading model: {e}")
+                raise
+
+        #     # load feature names from .txt file
+        #     with open(FEATURE_NAMES_PATH, "r") as f:
+        #         self.feature_names = [line.strip() for line in f.readlines()]
+
+    
+        #     print("\n🔥 SCALER GÖRDÜĞÜ FEATURE LİSTESİ:")
+
+        #     print("SCALER FEATURES:", self.scaler.feature_names_in_)
+
+        #     print("🔥 Listedeki kolon sayısı:", len(self.scaler.feature_names_in_))
+            
+        #     print("✅ Model, scaler ve feature list başarıyla yüklendi!")
+
+        # except Exception as e:
+        #     print(f"❌ Error loading model: {e}")
+        #     raise
     
     def prepare_features(self, input_data):
-        """
-        Prepare input data with feature engineering
-        
-        Args:
-            input_data (dict): Raw input features
-        
-        Returns:
-            pd.DataFrame: Prepared features
-        """
-        # Create DataFrame
+
+        # -----------------------------------
+        # 1) SAFE NUMERIC CONVERSION
+        # -----------------------------------
+        cleaned = {}
+        for key, value in input_data.items():
+            try:
+                cleaned[key] = float(value)
+            except:
+                cleaned[key] = value
+        input_data = cleaned
+
         df = pd.DataFrame([input_data])
-        
-        # Feature Engineering (same as training)
-        if 'Smoking' in df.columns and 'Alcohol use' in df.columns:
-            df['smoke_alcohol_risk'] = df['Smoking'] * df['Alcohol use']
-        
-        if 'Genetic Risk' in df.columns and 'chronic Lung Disease' in df.columns:
-            df['genetic_total_risk'] = df['Genetic Risk'] * df['chronic Lung Disease']
-        
-        if all(col in df.columns for col in ['Smoking', 'Alcohol use', 'Air Pollution', 'Genetic Risk']):
-            df['total_risk_score'] = (
-                df['Smoking'] + df['Alcohol use'] + 
-                df['Air Pollution'] + df['Genetic Risk']
-            ) / 4
-        
-        # Encode categorical if exists (pd.get_dummies)
+
+        # -----------------------------------
+        # 2) BASIC FEATURE ENGINEERING
+        # -----------------------------------
+        df['Smoking_squared'] = df['Smoking'] ** 2
+        df['Air Pollution_squared'] = df['Air Pollution'] ** 2
+
+        df['Age_Group'] = pd.cut(
+            df['Age'], [0, 25, 40, 55, 100],
+            labels=['Young', 'Adult', 'Middle_Aged', 'Senior']
+        )
+
+        df['Smoking_Level'] = pd.cut(
+            df['Smoking'], [0, 2, 5, 10],
+            labels=['Low', 'Medium', 'High']
+        )
+
+        # -----------------------------------
+        # 3) ENVIRONMENTAL RISK
+        # -----------------------------------
+        df['Environmental_Risk'] = (
+            df['Air Pollution'] +
+            df['Dust Allergy'] +
+            df['OccuPational Hazards']
+        )
+
+        # -----------------------------------
+        # 4) LIFESTYLE RISK
+        # -----------------------------------
+        df['Lifestyle_Risk'] = (
+            df['Smoking'] +
+            df['Alcohol use'] +
+            df['Obesity'] +
+            (10 - df['Balanced Diet'])
+        ) / 4
+
+        # -----------------------------------
+        # 5) GENETIC / HEALTH RISK
+        # -----------------------------------
+        df['Genetic_Health_Risk'] = (
+            df['Genetic Risk'] +
+            df['chronic Lung Disease']
+        ) / 2
+
+        # -----------------------------------
+        # 6) SYMPTOM SEVERITY
+        # -----------------------------------
+        symptom_cols = [
+            'Chest Pain', 'Coughing of Blood', 'Fatigue', 'Weight Loss',
+            'Shortness of Breath', 'Wheezing', 'Swallowing Difficulty'
+        ]
+        df['Symptom_Severity'] = df[symptom_cols].mean(axis=1)
+
+        # -----------------------------------
+        # 7) RESPIRATORY SCORE
+        # -----------------------------------
+        df['Respiratory_Score'] = (
+            df['Shortness of Breath'] +
+            df['Wheezing'] +
+            df['Dry Cough'] +
+            df['chronic Lung Disease']
+        ) / 4
+
+        # -----------------------------------
+        # 8) CRITICAL SYMPTOM COUNT
+        # -----------------------------------
+        critical_threshold = 6
+        df['Critical_Symptom_Count'] = (
+            (df['Chest Pain'] >= critical_threshold).astype(int) +
+            (df['Coughing of Blood'] >= critical_threshold).astype(int) +
+            (df['Weight Loss'] >= critical_threshold).astype(int) +
+            (df['Shortness of Breath'] >= critical_threshold).astype(int)
+        )
+
+        # -----------------------------------
+        # 9) OVERALL RISK SCORE
+        # -----------------------------------
+        df['Overall_Risk_Score'] = (
+            df['Environmental_Risk'] * 0.25 +
+            df['Lifestyle_Risk'] * 0.30 +
+            df['Genetic_Health_Risk'] * 0.20 +
+            df['Symptom_Severity'] * 0.25
+        )
+
+        # -----------------------------------
+        # 10) INTERACTION FEATURES
+        # -----------------------------------
+        df['Smoking_Age_Interaction'] = df['Smoking'] * df['Age']
+        df['Genetic_Age_Interaction'] = df['Genetic Risk'] * df['Age']
+
+        # -----------------------------------
+        # 11) ONE-HOT ENCODING
+        # -----------------------------------
         df_encoded = pd.get_dummies(df, drop_first=True)
-        
-        # Align with training features
+
+        # -----------------------------------
+        # 12) ALIGN COLUMNS (VERY IMPORTANT)
+        # -----------------------------------
         for col in self.feature_names:
-            if col not in df_encoded.columns:
-                df_encoded[col] = 0
-        
+                if col not in df_encoded.columns:
+                    df_encoded[col] = 0
+
         df_encoded = df_encoded[self.feature_names]
-        
+
         return df_encoded
-    
+
+
+        
     def predict(self, input_data):
         """
         Make prediction

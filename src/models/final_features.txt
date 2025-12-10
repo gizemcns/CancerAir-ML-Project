@@ -1,0 +1,28 @@
+Smoking
+Genetic Risk
+Air Pollution
+Alcohol use
+chronic Lung Disease
+Age
+Obesity
+Chest Pain
+Coughing of Blood
+Fatigue
+Weight Loss
+Shortness of Breath
+Wheezing
+Passive Smoker
+OccuPational Hazards
+Overall_Risk_Score
+Lifestyle_Risk
+Environmental_Risk
+Symptom_Severity
+Respiratory_Score
+Genetic_Health_Risk
+Smoking_Age_Interaction
+Genetic_Age_Interaction
+Smoking_squared
+Air Pollution_squared
+Critical_Symptom_Count
+Age_Group
+Smoking_Level
